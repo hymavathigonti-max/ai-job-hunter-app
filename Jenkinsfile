@@ -34,14 +34,23 @@ pipeline {
             }
         }
         
-        stage('Test SSH') {
-            steps {
-                sshagent(['ec2-ssh-key']) {
-                sh '''
-                ssh -o StrictHostKeyChecking=no ec2-user@13.233.227.211 "hostname"
-                '''
-        }
-          }
+        stage('Deploy to EC2') {
+    steps {
+        sshagent(['ec2-ssh-key']) {
+            sh '''
+            ssh -o StrictHostKeyChecking=no ec2-user@13.233.227.211 "
+                sudo docker pull hymavathigonti/ai-job-hunter:v2 &&
+                sudo docker stop ai-job-hunter || true &&
+                sudo docker rm ai-job-hunter || true &&
+                sudo docker run -d \
+                --restart unless-stopped \
+                --name ai-job-hunter \
+                -p 5000:5000 \
+                hymavathigonti/ai-job-hunter:v2
+            "
+            '''
+     }
+    }
         }
     }
 }
