@@ -33,5 +33,15 @@ pipeline {
                 sh 'docker push $IMAGE_NAME'
             }
         }
+        
+        stage('Test SSH') {
+            steps {
+                sshagent(['ec2-ssh-key']) {
+                sh '''
+                ssh -o StrictHostKeyChecking=no ec2-user@13.233.227.211 "hostname"
+                '''
+        }
+          }
+        }
     }
 }
